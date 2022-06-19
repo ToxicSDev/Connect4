@@ -38,12 +38,13 @@ public:
         }
     }
 
-    bool isValid(int col){
-        if(col < 0 || col >= width || heights[col] == height){
+    bool isValid(int col) {
+        if (col < 0 || col >= width || heights[col] == height) {
             return false;
         }
 
         return true;
+    }
 };
 
 class Connect4 : public Board{
@@ -118,6 +119,11 @@ public:
         this->resetBoard();
         delete [] heights;
         heights = new int[width];
+    }
+
+    void calculateScore(char inputChar){
+        // todo: calculate score for minmax algorithm
+
     }
 };
 
