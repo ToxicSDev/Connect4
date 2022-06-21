@@ -65,6 +65,43 @@ public:
         this->computer = computer;
     }
 
+    ~Connect4() {
+        for (int i = 0; i < height; i++) {
+            delete[] board[i];
+        }
+        delete[] board;
+        delete[] heights;
+    }
+
+    Connect4(const Connect4& other) : Board(other.height, other.width) {
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                this->board[i][j] = other.board[i][j];
+            }
+        }
+        for (int i = 0; i < width; i++) {
+            this->heights[i] = other.heights[i];
+        }
+        this->player = other.player;
+        this->computer = other.computer;
+    }
+
+    Connect4& operator=(const Connect4& other) {
+        if (this != &other) {
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                    this->board[i][j] = other.board[i][j];
+                }
+            }
+            for (int i = 0; i < width; i++) {
+                this->heights[i] = other.heights[i];
+            }
+            this->player = other.player;
+            this->computer = other.computer;
+        }
+        return *this;
+    }
+
     bool checkWin(char inputChar) {
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
@@ -121,6 +158,19 @@ public:
         heights = new int[width];
     }
 
+    int winningMove(char inputChar){
+        for (int i = 0; i < width; i++) {
+            if (isValid(i)) {
+                Connect4 temp(*this);
+                temp.makeMove(i, inputChar);
+                if (temp.checkWin(inputChar)) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
     void calculateScore(char inputChar){
         // todo: calculate score for minmax algorithm
 
@@ -129,4 +179,13 @@ public:
 
 int main() {
     Connect4 game(6, 7, 'X', 'O');
+
+    game.makeMove(0, 'X');
+    game.makeMove(0, 'X');
+
+    cout << game.winningMove('X') << endl;
+
+    game.makeMove(0, 'X');
+
+    cout << game.winningMove('X') << endl;
 }
