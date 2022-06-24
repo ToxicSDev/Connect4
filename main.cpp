@@ -54,15 +54,11 @@ public:
     }
 };
 
-// move the minimax algorithm to an AI class
-class AI {
-
-};
-
 class Connect4 : public Board{
 private:
     char player;
     char computer;
+    int currentMoves;
 public:
     Connect4(int height, int width, char player, char computer) : Board(height, width) {
         for (int i = 0; i < height; i++) {
@@ -128,6 +124,14 @@ public:
 
     char getComputer(){
         return computer;
+    }
+
+    int getCurrentMoves(){
+        return currentMoves;
+    }
+
+    void setCurrentMoves(int currentMoves){
+        this->currentMoves = currentMoves;
     }
 
     bool checkWin(char inputChar) {
@@ -239,78 +243,62 @@ public:
         return false;
     }
 
-    int minimax(char inputChar, int depth, bool isMax, int alpha, int beta){
-        if(isTerminal(inputChar) || depth == 0){
-            if(checkWin(computer)){
-                return MAX_INT;
-            }else if(checkWin(player)) {
-                return MIN_INT;
-            }else{
-                return 0;
-            }
+    int heuristic(char inputChar){
+        int score = 0;
+
+        if(checkWin(inputChar)){
+            score += 100000;
+        }else if(checkWin(getOpponent(inputChar))){
+            score -= 100000;
         }
 
-        vector<int> validLocations = getValidMoves();
-        if(isMax){
-            int bestScore = MIN_INT;
-            for(unsigned int i = 0; i < validLocations.size(); i++){
-                int row = getNextOpenRow(validLocations[i]);
-                if(row != -1){
-                    Connect4 temp(*this);
-                    temp.makeMove(validLocations[i], inputChar);
-                    int score = temp.minimax(getOpponent(inputChar), depth - 1, false, alpha, beta);
-                    bestScore = max(bestScore, score);
-                    alpha = max(alpha, score);
-                    if(beta <= alpha){
-                        break;
-                    }
-                }
-            }
-            return bestScore;
-        }else{
-            int bestScore = MAX_INT;
-            for(unsigned int i = 0; i < validLocations.size(); i++){
-                int row = getNextOpenRow(validLocations[i]);
-                if(row != -1){
-                    Connect4 temp(*this);
-                    temp.makeMove(validLocations[i], inputChar);
-                    int score = temp.minimax(getOpponent(inputChar), depth - 1, true, alpha, beta);
-                    bestScore = min(bestScore, score);
-                    beta = min(beta, score);
-                    if(beta <= alpha){
-                        break;
-                    }
-                }
-            }
-            return bestScore;
-        }
+        return score;
     }
 
-    void aiMove(int depth){
-        int bestScore = MIN_INT;
+    int negamax(int depth, int alpha, int beta, char inputChar){
+        if(depth == 0 || isTerminal(inputChar)){
+            return heuristic(inputChar);
+        }
+        int best = -1000000;
+        vector<int> validMoves = getValidMoves();
+        for(int i = 0; i < validMoves.size(); i++){
+            Connect4 temp(*this);
+            temp.makeMove(validMoves[i], inputChar);
+            int score = -temp.negamax(depth - 1, -beta, -alpha, getOpponent(inputChar));
+            if(score > best){
+                best = score;
+            }
+            if(best >= beta){
+                return best;
+            }
+            alpha = max(alpha, best);
+        }
+        return best;
+    }
+
+    int aiMove(int depth, char inputChar){
+        int best = -1000000;
         int bestMove = -1;
-        vector<int> validLocations = getValidMoves();
-        for(unsigned int i = 0; i < validLocations.size(); i++){
-            int row = getNextOpenRow(validLocations[i]);
-            if(row != -1){
-                Connect4 temp(*this);
-                temp.makeMove(validLocations[i], computer);
-                int score = temp.minimax(player, depth, false, MIN_INT, MAX_INT);
-                if(score > bestScore){
-                    bestScore = score;
-                    bestMove = validLocations[i];
-                }
+        vector<int> validMoves = getValidMoves();
+        for(int i = 0; i < validMoves.size(); i++){
+            Connect4 temp(*this);
+            temp.makeMove(validMoves[i], inputChar);
+            int score = -temp.negamax(depth, MIN_INT, MAX_INT, inputChar);
+            if(score > best){
+                best = score;
+                bestMove = validMoves[i];
             }
         }
-        makeMove(bestMove, computer);
+        makeMove(bestMove, inputChar);
     }
+
 
 };
 
 int main() {
     Connect4 game(6, 7, 'X', 'O');
 
-    while(1){
+    while(true){
         game.printBoard();
         cout << "Player: " << game.getPlayer() << endl;
         cout << "Computer: " << game.getComputer() << endl;
@@ -322,12 +310,14 @@ int main() {
             cin >> column;
         }
         game.makeMove(column, game.getPlayer());
+        game.setCurrentMoves(game.getCurrentMoves() + 1);
         if(game.checkWin(game.getPlayer())){
             game.printBoard();
             cout << "Player wins!" << endl;
             break;
         }
-        game.aiMove(4);
+        game.aiMove(5, game.getComputer());
+        game.setCurrentMoves(game.getCurrentMoves() + 1);
         if(game.checkWin(game.getComputer())){
             game.printBoard();
             cout << "Computer wins!" << endl;
