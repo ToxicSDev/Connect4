@@ -54,6 +54,11 @@ public:
     }
 };
 
+// move the minimax algorithm to an AI class
+class AI {
+
+};
+
 class Connect4 : public Board{
 private:
     char player;
@@ -115,6 +120,14 @@ public:
 
     int getWidth(){
         return width;
+    }
+
+    char getPlayer(){
+        return player;
+    }
+
+    char getComputer(){
+        return computer;
     }
 
     bool checkWin(char inputChar) {
@@ -273,21 +286,52 @@ public:
         }
     }
 
+    void aiMove(int depth){
+        int bestScore = MIN_INT;
+        int bestMove = -1;
+        vector<int> validLocations = getValidMoves();
+        for(unsigned int i = 0; i < validLocations.size(); i++){
+            int row = getNextOpenRow(validLocations[i]);
+            if(row != -1){
+                Connect4 temp(*this);
+                temp.makeMove(validLocations[i], computer);
+                int score = temp.minimax(player, depth, false, MIN_INT, MAX_INT);
+                if(score > bestScore){
+                    bestScore = score;
+                    bestMove = validLocations[i];
+                }
+            }
+        }
+        makeMove(bestMove, computer);
+    }
+
 };
 
 int main() {
     Connect4 game(6, 7, 'X', 'O');
 
-    game.makeMove(0, 'O');
-    game.makeMove(1, 'O');
-
-    game.makeMove(3, 'O');
-    game.makeMove(3, 'X');
-
-    game.printBoard();
-
-    int move = game.minimax('O', 3, true, MIN_INT, MAX_INT);
-    game.makeMove(move, 'O');
-    game.printBoard();
-
+    while(1){
+        game.printBoard();
+        cout << "Player: " << game.getPlayer() << endl;
+        cout << "Computer: " << game.getComputer() << endl;
+        cout << "Enter column: ";
+        int column;
+        cin >> column;
+        while(!game.isValid(column)){
+            cout << "Invalid column, try again: ";
+            cin >> column;
+        }
+        game.makeMove(column, game.getPlayer());
+        if(game.checkWin(game.getPlayer())){
+            game.printBoard();
+            cout << "Player wins!" << endl;
+            break;
+        }
+        game.aiMove(4);
+        if(game.checkWin(game.getComputer())){
+            game.printBoard();
+            cout << "Computer wins!" << endl;
+            break;
+        }
+    }
 }
