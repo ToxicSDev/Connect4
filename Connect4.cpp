@@ -2,9 +2,11 @@
 #include <string>
 #include <vector>
 #include <limits>
+#include <cstdlib>
 
 #include "Board.h"
 #include "Connect4.h"
+#include "utils.h"
 
 int MAX_INT = std::numeric_limits<int>::max();
 int MIN_INT = std::numeric_limits<int>::min();
@@ -239,4 +241,93 @@ void Connect4::aiMove(int depth, char inputChar) {
         }
     }
     makeMove(bestMove, inputChar);
+}
+
+void Connect4::playAI(int depth){
+
+}
+
+void Connect4::playManual(){
+    int column;
+    char inputChar;
+
+    int turn = rand() % 2;
+
+    while (true) {
+        clearScreen();
+        printFile("resources/logo.txt");
+        printBoard();
+        cout << endl;
+
+        cout << "Player " << (turn + 1) << " turn: ";
+        cin >> column;
+
+        column = column - 1;
+
+        if (column < 0 || column >= width) {
+            cout << endl << "Invalid column. Try again." << endl;
+
+            cout << endl;
+            cout << "Press enter to continue...";
+            cin.ignore();
+            cin.get();
+
+            continue;
+        }
+        if (heights[column] == height) {
+            cout << endl << "Column is full. Try again." << endl;
+
+            cout << endl;
+            cout << "Press enter to continue...";
+            cin.ignore();
+            cin.get();
+
+            continue;
+        }
+
+        if(turn == 0){
+            inputChar = player;
+        }
+        else{
+            inputChar = computer;
+        }
+
+        makeMove(column, inputChar);
+        currentMoves++;
+        if (checkWin(inputChar)) {
+            clearScreen();
+            if(inputChar == player){
+                printFile("resources/player1.txt");
+            }
+            else{
+                printFile("resources/player2.txt");
+            }
+            cout << endl;
+
+            printBoard();
+
+            cout << endl;
+            cout << "Press enter to continue...";
+            cin.ignore();
+            cin.get();
+
+            break;
+        }
+        if (currentMoves == calculateMaxRounds()) {
+            clearScreen();
+            printFile("resources/draw.txt");
+            cout << endl;
+
+            printBoard();
+
+            cout << endl;
+            cout << "Press enter to continue...";
+            cin.ignore();
+            cin.get();
+
+            break;
+        }
+
+        turn = (turn + 1) % 2;
+    }
 }

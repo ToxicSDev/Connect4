@@ -3,25 +3,7 @@
 #include <fstream>
 
 #include "Connect4.h"
-
-void printFile(const string& fileName) {
-    ifstream file (fileName.c_str());
-    string line;
-    while (getline(file, line)) {
-        cout <<  line << endl;
-    }
-    file.close();
-}
-
-void clearScreen() {
-    #ifdef _WIN32
-        system("cls");
-    #elif _WIN64
-        system("cls");
-    #else
-        system("clear");
-    #endif
-}
+#include "utils.h"
 
 void menu(){
     bool running = true;
@@ -44,9 +26,11 @@ void menu(){
 
         clearScreen();
         if(option == 1) {
-
+            Connect4 game(height, width, player1, player2);
+            game.playManual();
         } else if(option == 2) {
-
+            Connect4 game(height, width, player1, player2);
+            game.playAI(depth);
         } else if(option == 3) {
             printFile("resources/info.txt");
             cout << endl;

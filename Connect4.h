@@ -42,6 +42,9 @@ public:
     void makeMove(int column, char inputChar);
     void resetGame();
     void aiMove(int depth, char inputChar);
+
+    void playAI(int depth);
+    void playManual();
 };
 
 #endif
