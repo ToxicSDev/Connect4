@@ -8,9 +8,6 @@
 #include "Connect4.h"
 #include "utils.h"
 
-int MAX_INT = std::numeric_limits<int>::max();
-int MIN_INT = std::numeric_limits<int>::min();
-
 vector<int> Connect4::getValidMoves() {
     vector<int> validMoves;
     for (int i = 0; i < width; i++) {
@@ -19,56 +16,6 @@ vector<int> Connect4::getValidMoves() {
         }
     }
     return validMoves;
-}
-
-bool Connect4::isTerminal(char inputChar) {
-    if (checkWin(inputChar)) {
-        return true;
-    }
-    if (checkWin(getOpponent(inputChar))) {
-        return true;
-    }
-    if (getValidMoves().empty()) {
-        return true;
-    }
-    return false;
-}
-
-int Connect4::getScore(char inputChar) {
-    int score = 0;
-
-    if (checkWin(inputChar)) {
-        score += 100000;
-    } else if (checkWin(getOpponent(inputChar))) {
-        score -= 100000;
-    }
-
-    if (board[3][3] == ' ') {
-        score += MAX_INT;
-    }
-
-    return score;
-}
-
-int Connect4::negamax(int depth, int alpha, int beta, char inputChar) {
-    if (depth == 0 || isTerminal(inputChar)) {
-        return getScore(inputChar);
-    }
-    int best = MIN_INT;
-    vector<int> validMoves = getValidMoves();
-    for (int i = 0; i < validMoves.size(); i++) {
-        Connect4 temp(*this);
-        temp.makeMove(validMoves[i], inputChar);
-        int score = -temp.negamax(depth - 1, -beta, -alpha, getOpponent(inputChar));
-        if (score > best) {
-            best = score;
-        }
-        if (best >= beta) {
-            return best;
-        }
-        alpha = max(alpha, best);
-    }
-    return best;
 }
 
 Connect4::Connect4(int height, int width, char player, char computer) : Board::Board(height, width) {
@@ -225,26 +172,6 @@ void Connect4::resetGame() {
     this->resetBoard();
     delete[] heights;
     heights = new int[width];
-}
-
-void Connect4::aiMove(int depth, char inputChar) {
-    int best = MIN_INT;
-    int bestMove = -1;
-    vector<int> validMoves = getValidMoves();
-    for (int i = 0; i < validMoves.size(); i++) {
-        Connect4 temp(*this);
-        temp.makeMove(validMoves[i], inputChar);
-        int score = -temp.negamax(depth, MIN_INT, MAX_INT, inputChar);
-        if (score > best) {
-            best = score;
-            bestMove = validMoves[i];
-        }
-    }
-    makeMove(bestMove, inputChar);
-}
-
-void Connect4::playAI(int depth){
-
 }
 
 void Connect4::playManual(){
