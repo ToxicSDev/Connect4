@@ -2,6 +2,7 @@
 #include <string>
 #include <limits>
 #include <vector>
+#include <fstream>
 
 int MAX_INT = std::numeric_limits<int>::max();
 int MIN_INT = std::numeric_limits<int>::min();
@@ -25,18 +26,6 @@ protected:
         }
     }
 
-public:
-    void printBoard() {
-        cout << "Board:" << endl;
-        for (int i = height - 1; i >= 0; i--) {
-            cout << "|";
-            for (int j = 0; j < width; j++) {
-                cout << board[i][j] << "|";
-            }
-            cout << endl;
-        }
-    }
-
     void resetBoard() {
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
@@ -52,6 +41,18 @@ public:
 
         return true;
     }
+
+public:
+    void printBoard() {
+        cout << "Board:" << endl;
+        for (int i = height - 1; i >= 0; i--) {
+            cout << "|";
+            for (int j = 0; j < width; j++) {
+                cout << board[i][j] << "|";
+            }
+            cout << endl;
+        }
+    }
 };
 
 class Connect4 : public Board{
@@ -59,6 +60,67 @@ private:
     char player;
     char computer;
     int currentMoves;
+
+    vector<int> getValidMoves(){
+        vector<int> validMoves;
+        for(int i = 0; i < width; i++){
+            if(isValid(i)){
+                validMoves.push_back(i);
+            }
+        }
+        return validMoves;
+    }
+
+    bool isTerminal(char inputChar){
+        if(checkWin(inputChar)){
+            return true;
+        }
+        if(checkWin(getOpponent(inputChar))){
+            return true;
+        }
+        if(getValidMoves().empty()){
+            return true;
+        }
+        return false;
+    }
+
+    int getScore(char inputChar){
+        int score = 0;
+
+        if(checkWin(inputChar)){
+            score += 100000;
+        }else if(checkWin(getOpponent(inputChar))){
+            score -= 100000;
+        }
+
+        if(board[3][3] == ' '){
+            score += MAX_INT;
+        }
+
+        return score;
+    }
+
+    int negamax(int depth, int alpha, int beta, char inputChar){
+        if(depth == 0 || isTerminal(inputChar)){
+            return getScore(inputChar);
+        }
+        int best = MIN_INT;
+        vector<int> validMoves = getValidMoves();
+        for(int i = 0; i < validMoves.size(); i++){
+            Connect4 temp(*this);
+            temp.makeMove(validMoves[i], inputChar);
+            int score = -temp.negamax(depth - 1, -beta, -alpha, getOpponent(inputChar));
+            if(score > best){
+                best = score;
+            }
+            if(best >= beta){
+                return best;
+            }
+            alpha = max(alpha, best);
+        }
+        return best;
+    }
+
 public:
     Connect4(int height, int width, char player, char computer) : Board(height, width) {
         for (int i = 0; i < height; i++) {
@@ -71,6 +133,7 @@ public:
         }
         this->player = player;
         this->computer = computer;
+        this->currentMoves = 0;
     }
 
     ~Connect4() {
@@ -92,6 +155,7 @@ public:
         }
         this->player = other.player;
         this->computer = other.computer;
+        this->currentMoves = other.currentMoves;
     }
 
     Connect4& operator=(const Connect4& other) {
@@ -118,20 +182,44 @@ public:
         return width;
     }
 
-    char getPlayer(){
+    char getPlayer() const{
         return player;
     }
 
-    char getComputer(){
+    char getComputer() const{
         return computer;
     }
 
-    int getCurrentMoves(){
+    int getCurrentMoves() const{
         return currentMoves;
     }
 
-    void setCurrentMoves(int currentMoves){
-        this->currentMoves = currentMoves;
+    char getOpponent(char inputChar) const{
+        if(inputChar == player){
+            return computer;
+        }
+
+        return player;
+    }
+
+    void setCurrentMoves(int inputCurrentMoves){
+        this->currentMoves = inputCurrentMoves;
+    }
+
+    void setPlayer(char inputChar){
+        this->player = inputChar;
+    }
+
+    void setComputer(char inputChar){
+        this->computer = inputChar;
+    }
+
+    void setHeight(int inputHeight){
+        this->height = inputHeight;
+    }
+
+    void setWidth(int inputWidth){
+        this->width = inputWidth;
     }
 
     bool checkWin(char inputChar) {
@@ -190,94 +278,8 @@ public:
         heights = new int[width];
     }
 
-    int winningMove(char inputChar){
-        for (int i = 0; i < width; i++) {
-            if (isValid(i)) {
-                Connect4 temp(*this);
-                temp.makeMove(i, inputChar);
-                if (temp.checkWin(inputChar)) {
-                    return i;
-                }
-            }
-        }
-        return -1;
-    }
-
-    char getOpponent(char inputChar) const{
-        if(inputChar == player){
-            return computer;
-        }
-
-        return player;
-    }
-
-    vector<int> getValidMoves(){
-        vector<int> validMoves;
-        for(int i = 0; i < width; i++){
-            if(isValid(i)){
-                validMoves.push_back(i);
-            }
-        }
-        return validMoves;
-    }
-
-    int getNextOpenRow(int col){
-        for(int i = heights[col]; i < height; i++){
-            if(board[i][col] == ' '){
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    bool isTerminal(char inputChar){
-        if(checkWin(inputChar)){
-            return true;
-        }
-        if(checkWin(getOpponent(inputChar))){
-            return true;
-        }
-        if(getValidMoves().empty()){
-            return true;
-        }
-        return false;
-    }
-
-    int heuristic(char inputChar){
-        int score = 0;
-
-        if(checkWin(inputChar)){
-            score += 100000;
-        }else if(checkWin(getOpponent(inputChar))){
-            score -= 100000;
-        }
-
-        return score;
-    }
-
-    int negamax(int depth, int alpha, int beta, char inputChar){
-        if(depth == 0 || isTerminal(inputChar)){
-            return heuristic(inputChar);
-        }
-        int best = -1000000;
-        vector<int> validMoves = getValidMoves();
-        for(int i = 0; i < validMoves.size(); i++){
-            Connect4 temp(*this);
-            temp.makeMove(validMoves[i], inputChar);
-            int score = -temp.negamax(depth - 1, -beta, -alpha, getOpponent(inputChar));
-            if(score > best){
-                best = score;
-            }
-            if(best >= beta){
-                return best;
-            }
-            alpha = max(alpha, best);
-        }
-        return best;
-    }
-
-    int aiMove(int depth, char inputChar){
-        int best = -1000000;
+    void aiMove(int depth, char inputChar){
+        int best = MIN_INT;
         int bestMove = -1;
         vector<int> validMoves = getValidMoves();
         for(int i = 0; i < validMoves.size(); i++){
@@ -291,37 +293,50 @@ public:
         }
         makeMove(bestMove, inputChar);
     }
-
-
 };
 
+void printFile(const string& fileName) {
+    ifstream file (fileName.c_str());
+    string line;
+    while (getline(file, line)) {
+        cout <<  line << endl;
+    }
+    file.close();
+}
+
+void clearScreen() {
+    #ifdef _WIN32
+        system("cls");
+    #elif _WIN64
+        system("cls");
+    #else
+        system("clear");
+    #endif
+}
+
+void menu(){
+    clearScreen();
+    printFile("resources/menu.txt");
+    cout << endl << endl;
+
+    cout << "1. Play against a friend" << endl;
+    cout << "2. Play against the computer" << endl;
+    cout << "3. View the rules" << endl;
+    cout << "3. View information about the game" << endl;
+    cout << "4. Quit" << endl;
+}
+
 int main() {
+    menu();
+
     Connect4 game(6, 7, 'X', 'O');
 
-    while(true){
-        game.printBoard();
-        cout << "Player: " << game.getPlayer() << endl;
-        cout << "Computer: " << game.getComputer() << endl;
-        cout << "Enter column: ";
-        int column;
-        cin >> column;
-        while(!game.isValid(column)){
-            cout << "Invalid column, try again: ";
-            cin >> column;
-        }
-        game.makeMove(column, game.getPlayer());
-        game.setCurrentMoves(game.getCurrentMoves() + 1);
-        if(game.checkWin(game.getPlayer())){
-            game.printBoard();
-            cout << "Player wins!" << endl;
-            break;
-        }
-        game.aiMove(5, game.getComputer());
-        game.setCurrentMoves(game.getCurrentMoves() + 1);
-        if(game.checkWin(game.getComputer())){
-            game.printBoard();
-            cout << "Computer wins!" << endl;
-            break;
-        }
-    }
+    game.aiMove(1, 'X');
+    game.aiMove(1, 'X');
+    game.makeMove(3, 'O');
+    game.makeMove(3, 'O');
+    game.aiMove(1, 'X');
+    game.printBoard();
+
+    return 0;
 }
