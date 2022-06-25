@@ -9,4 +9,5 @@
 1. Play against a friend
 2. Play against the computer
 3. View information about the game
-4. Quit
+4. Edit Game Settings
+5. Quit

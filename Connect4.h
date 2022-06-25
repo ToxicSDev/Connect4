@@ -7,7 +7,7 @@
 #include "Board.h"
 #include "Connect4.h"
 
-class Connect4 : public Board{
+class Connect4 : public Board {
 private:
     char player;
     char computer;
@@ -43,6 +43,5 @@ public:
     void resetGame();
     void aiMove(int depth, char inputChar);
 };
-
 
 #endif
