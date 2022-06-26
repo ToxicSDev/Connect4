@@ -14,9 +14,21 @@ private:
     int currentMoves;
 
     vector<int> getValidMoves();
+
     bool isTerminal(char inputChar);
     int getScore(char inputChar);
     int negamax(int depth, int alpha, int beta, char inputChar);
+    void aiMove(int depth, char inputChar);
+
+    bool checkWin(char inputChar);
+    int calculateMaxRounds();
+    int evaluateWindow(const char* window, char inputChar) const;
+    char* getRow(int pos);
+    char* getCol(int pos);
+    char* getNegDiag(int pos1, int pos2);
+    char* getPosDiag(int pos1, int pos2);
+    char* getWindow(const char* row, int pos);
+    int countInWindow(const char* window, char inputChar) const;
 
 public:
     Connect4(int height, int width, char player, char computer);
@@ -37,11 +49,8 @@ public:
     void setHeight(int inputHeight);
     void setWidth(int inputWidth);
 
-    bool checkWin(char inputChar);
-    int calculateMaxRounds();
     void makeMove(int column, char inputChar);
     void resetGame();
-    void aiMove(int depth, char inputChar);
 
     void playAI(int depth);
     void playManual();
