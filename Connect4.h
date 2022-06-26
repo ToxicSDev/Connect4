@@ -15,20 +15,24 @@ private:
 
     vector<int> getValidMoves();
 
-    bool isTerminal(char inputChar);
     int getScore(char inputChar);
+    bool isTerminal(char inputChar);
     int negamax(int depth, int alpha, int beta, char inputChar);
     void aiMove(int depth, char inputChar);
 
     bool checkWin(char inputChar);
+    bool canWin(char inputChar);
+
     int calculateMaxRounds();
-    int evaluateWindow(const char* window, char inputChar) const;
+
     char* getRow(int pos);
     char* getCol(int pos);
     char* getNegDiag(int pos1, int pos2);
     char* getPosDiag(int pos1, int pos2);
+
     char* getWindow(const char* row, int pos);
     int countInWindow(const char* window, char inputChar) const;
+    int evaluateWindow(const char* window, char inputChar) const;
 
 public:
     Connect4(int height, int width, char player, char computer);

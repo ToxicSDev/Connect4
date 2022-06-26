@@ -19,6 +19,14 @@ bool Connect4::isTerminal(char inputChar) {
     if (getValidMoves().empty()) {
         return true;
     }
+
+    if(canWin(inputChar)) {
+        return true;
+    }
+    if(canWin(getOpponent(inputChar))) {
+        return true;
+    }
+
     return false;
 }
 
@@ -99,6 +107,12 @@ int Connect4::evaluateWindow(const char *window, char inputChar) const {
 int Connect4::getScore(char inputChar) {
     int score = 0;
 
+    if(checkWin(inputChar) || canWin(inputChar)) {
+        return 10000;
+    }else if(checkWin(getOpponent(inputChar)) || canWin(getOpponent(inputChar))) {
+        return -10000;
+    }
+
     char* middleCol = getCol(width / 2);
     score = countInWindow(middleCol, inputChar) * 3;
 
@@ -139,20 +153,27 @@ int Connect4::getScore(char inputChar) {
     return score;
 }
 
-int Connect4::negamax(int depth, int alpha, int beta, char inputChar) {
-    if (depth == 0 || isTerminal(inputChar)) {
-        if(isTerminal(inputChar)) {
-            if (checkWin(inputChar)) {
-                return 100000;
-            } else if (checkWin(getOpponent(inputChar))) {
-                return -100000;
-            } else {
-                return 0;
+bool Connect4::canWin(char inputChar) {
+    for(int i = 0; i < height; i++){
+        for(int j = 0; j < width; j++){
+            if(board[i][j] == ' '){
+                board[i][j] = inputChar;
+                if(checkWin(inputChar)){
+                    board[i][j] = ' ';
+                    return true;
+                }
+                board[i][j] = ' ';
             }
-        }else {
-            return getScore(inputChar);
         }
     }
+    return false;
+}
+
+int Connect4::negamax(int depth, int alpha, int beta, char inputChar) {
+    if (depth == 0 || isTerminal(inputChar)) {
+        return getScore(inputChar);
+    }
+
     int best = MIN_INT;
     vector<int> validMoves = getValidMoves();
     for (int i = 0; i < validMoves.size(); i++) {

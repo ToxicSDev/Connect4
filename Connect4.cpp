@@ -119,6 +119,11 @@ void Connect4::setWidth(int inputWidth) {
 }
 
 bool Connect4::checkWin(char inputChar) {
+
+    if(currentMoves < 7) {
+        return false;
+    }
+
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
             if (board[i][j] == inputChar) {
