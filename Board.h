@@ -16,6 +16,14 @@ protected:
 
 public:
     void printBoard();
+    int getHeight() const;
+    int getWidth() const;
+    char** getBoard();
+
+    char* getRow(int pos);
+    char* getCol(int pos);
+    char* getPosDiag(int pos1, int pos2);
+    char* getNegDiag(int pos1, int pos2);
 };
 
 #endif

@@ -70,14 +70,6 @@ Connect4 &Connect4::operator=(const Connect4 &other) {
     return *this;
 }
 
-int Connect4::getHeight() {
-    return height;
-}
-
-int Connect4::getWidth() {
-    return width;
-}
-
 char Connect4::getPlayer() const {
     return player;
 }

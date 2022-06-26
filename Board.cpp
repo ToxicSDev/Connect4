@@ -14,6 +14,18 @@ Board::Board(int height, int width) {
     }
 }
 
+int Board::getHeight() const {
+    return height;
+}
+
+int Board::getWidth() const {
+    return width;
+}
+
+char** Board::getBoard() {
+    return board;
+}
+
 void Board::resetBoard() {
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
@@ -39,4 +51,40 @@ void Board::printBoard() {
         }
         cout << endl;
     }
+}
+
+char* Board::getRow(int pos) {
+    char* row = new char[width];
+    for (int i = 0; i < width; i++) {
+        row[i] = board[pos][i];
+    }
+
+    return row;
+}
+
+char* Board::getCol(int pos) {
+    char* col = new char[height];
+    for (int i = 0; i < height; i++) {
+        col[i] = board[i][pos];
+    }
+
+    return col;
+}
+
+char* Board::getPosDiag(int pos1, int pos2) {
+    char* posDiag = new char[4];
+    for (int i = 0; i < 4; i++) {
+        posDiag[i] = board[pos1 + i][pos2 + i];
+    }
+
+    return posDiag;
+}
+
+char* Board::getNegDiag(int pos1, int pos2) {
+    char* negDiag = new char[4];
+    for (int i = 0; i < 4; i++) {
+        negDiag[i] = board[pos1 + 3 - i][pos2 + i];
+    }
+
+    return negDiag;
 }

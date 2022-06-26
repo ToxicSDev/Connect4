@@ -25,23 +25,12 @@ private:
 
     int calculateMaxRounds();
 
-    char* getRow(int pos);
-    char* getCol(int pos);
-    char* getNegDiag(int pos1, int pos2);
-    char* getPosDiag(int pos1, int pos2);
-
-    char* getWindow(const char* row, int pos);
-    int countInWindow(const char* window, char inputChar) const;
-    int evaluateWindow(const char* window, char inputChar) const;
-
 public:
     Connect4(int height, int width, char player, char computer);
     ~Connect4();
     Connect4(const Connect4& other);
     Connect4& operator=(const Connect4& other);
 
-    int getHeight();
-    int getWidth();
     char getPlayer() const;
     char getComputer() const;
     int getCurrentMoves() const;
